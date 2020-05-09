@@ -27,8 +27,21 @@ namespace desExt.Editor
         private static Dictionary<BaseVariable, VariableData> _variables;
         private static Vector2 _scrollPosition;
 
+        private static readonly string[] SkipFields = {"m_Script", "VariableCategory"};
+
         private static Dictionary<BaseVariable, VariableData> Variables =>
             _variables ?? (_variables = new Dictionary<BaseVariable, VariableData>());
+
+        [MenuItem("Tools/Game Manager")]
+        public static void Init()
+        {
+            var gameManagerWindow = (VariablesManagerEditor) GetWindow(typeof(VariablesManagerEditor));
+            gameManagerWindow.titleContent = new GUIContent("Game Manager");
+
+            LoadVariables();
+
+            gameManagerWindow.Show();
+        }
 
         private static void AddVariable(BaseVariable variable, VariableData variableData)
         {
@@ -47,17 +60,6 @@ namespace desExt.Editor
             {
                 Variables.Remove(variable);
             }
-        }
-
-        [MenuItem("Tools/Game Manager")]
-        public static void Init()
-        {
-            var gameManagerWindow = (VariablesManagerEditor) GetWindow(typeof(VariablesManagerEditor));
-            gameManagerWindow.titleContent = new GUIContent("Game Manager");
-
-            LoadVariables();
-
-            gameManagerWindow.Show();
         }
 
         private static void LoadVariables()
@@ -92,7 +94,7 @@ namespace desExt.Editor
         private void OnGUI()
         {
             Profiler.BeginSample("desExt");
-            
+
             if (GUILayout.Button(new GUIContent("Refresh objects")))
             {
                 Variables.Clear();
@@ -110,24 +112,30 @@ namespace desExt.Editor
                 Variables[variable].FoldOut = EditorGUILayout.Foldout(Variables[variable].FoldOut, variable.name);
                 if (Variables[variable].FoldOut)
                 {
-                    var fields = variable.GetType().GetFields();
-
                     var serializedObject = new SerializedObject(variable);
                     serializedObject.Update();
                     EditorGUI.indentLevel++;
-                    foreach (var field in fields)
+
+                    var property = serializedObject.GetIterator();
+                    property.NextVisible(true);
+
+                    do
                     {
-                        EditorGUILayout.PropertyField(serializedObject.FindProperty(field.Name));
-                    }
+                        if (!SkipFields.Contains(property.name))
+                        {
+                            EditorGUILayout.PropertyField(property);
+                        }
+                    } while (property.NextVisible(false));
+
 
                     EditorGUI.indentLevel--;
 
                     serializedObject.ApplyModifiedProperties();
                 }
             }
-            
+
             EditorGUILayout.EndScrollView();
-            
+
             Profiler.EndSample();
         }
     }
