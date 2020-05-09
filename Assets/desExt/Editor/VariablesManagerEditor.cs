@@ -45,7 +45,14 @@ namespace desExt.Editor
 
         private static void AddVariable(BaseVariable variable, VariableData variableData)
         {
-            Variables.Add(variable, variableData);
+            if (Variables.ContainsKey(variable))
+            {
+                Variables[variable] = variableData;
+            }
+            else
+            {
+                Variables.Add(variable, variableData);
+            }
         }
 
         private static VariableData GetVariableData(BaseVariable variable)
