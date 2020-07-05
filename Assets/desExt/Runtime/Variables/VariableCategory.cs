@@ -1,4 +1,4 @@
-namespace desExt.Variables
+namespace desExt.Runtime.Variables
 {
     public enum VariableCategory
     {

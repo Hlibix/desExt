@@ -1,0 +1,17 @@
+{
+    "name": "desExt.Editor",
+    "references": [
+        "GUID:a2f70d38096c7e948a31394661535921"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

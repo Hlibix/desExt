@@ -1,4 +1,4 @@
-namespace desExt
+namespace desExt.Runtime
 {
     public static class DesExtNames
     {
