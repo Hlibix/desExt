@@ -29,6 +29,14 @@ namespace desExt.Runtime.Utils
 
                         _instance.name = typeof(T).Name;
 
+                        var absoluteFileDirectory = System.IO.Path.Combine(Application.dataPath,
+                            ConfigLocations.ConfigFolderDataPath);
+
+                        if (!System.IO.Directory.Exists(absoluteFileDirectory))
+                        {
+                            System.IO.Directory.CreateDirectory(absoluteFileDirectory);
+                        }
+
                         UnityEditor.AssetDatabase.CreateAsset(_instance,
                             ConfigLocations.GetAssetDatabasePath(_instance.name));
 #endif
