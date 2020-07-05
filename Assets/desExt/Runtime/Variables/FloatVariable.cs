@@ -1,10 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace desExt.Variables
+namespace desExt.Runtime.Variables
 {
     [CreateAssetMenu(menuName = DesExtNames.VariablesMenuName + "Float Variable")]
-    public class FloatVariable : BaseVariable
+    public class FloatVariable : BaseTypeVariable<float>
     {
-        public float FloatValue;
     }
 }

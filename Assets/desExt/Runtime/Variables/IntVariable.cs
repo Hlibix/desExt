@@ -1,10 +1,9 @@
 using UnityEngine;
 
-namespace desExt.Variables
+namespace desExt.Runtime.Variables
 {
     [CreateAssetMenu(menuName = DesExtNames.VariablesMenuName + "Int Variable")]
-    public class IntVariable : BaseVariable
+    public class IntVariable : BaseTypeVariable<int>
     {
-        public int IntValue;
     }
 }

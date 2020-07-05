@@ -1,11 +1,9 @@
 using UnityEngine;
 
-namespace desExt.Variables
+namespace desExt.Runtime.Variables
 {
     [CreateAssetMenu(menuName = DesExtNames.VariablesMenuName + "String Variable")]
-
-    public class StringVariable: BaseVariable
+    public class StringVariable : BaseTypeVariable<string>
     {
-        public string StringValue;
     }
 }
