@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using desExt.Variables;
+using desExt.Editor.Utils;
+using desExt.Runtime.Variables;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
-using Object = UnityEngine.Object;
 
 namespace desExt.Editor
 {
@@ -32,11 +30,11 @@ namespace desExt.Editor
         private static Dictionary<BaseVariable, VariableData> Variables =>
             _variables ?? (_variables = new Dictionary<BaseVariable, VariableData>());
 
-        [MenuItem("Tools/Game Manager")]
+        [MenuItem("desExt/Variables Manager")]
         public static void Init()
         {
             var gameManagerWindow = (VariablesManagerEditor) GetWindow(typeof(VariablesManagerEditor));
-            gameManagerWindow.titleContent = new GUIContent("Game Manager");
+            gameManagerWindow.titleContent = new GUIContent("Variables Manager");
 
             LoadVariables();
 
@@ -71,31 +69,10 @@ namespace desExt.Editor
 
         private static void LoadVariables()
         {
-            foreach (var baseVariable in LoadAllAssetsAndPathOfType<BaseVariable>())
+            foreach (var baseVariable in EditorUtils.LoadAllAssetsAndPathsOfType<BaseVariable>())
             {
                 Variables.Add(baseVariable.Item1, new VariableData(baseVariable.Item2));
             }
-        }
-
-        private static HashSet<(T, string)> LoadAllAssetsAndPathOfType<T>()
-            where T : Object
-        {
-            var guids = AssetDatabase.FindAssets($"t:{typeof(T)}");
-
-            var assets = new HashSet<(T, string)>();
-
-            foreach (var guid in guids)
-            {
-                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
-
-                if (asset != null)
-                {
-                    assets.Add((asset, assetPath));
-                }
-            }
-
-            return assets;
         }
 
         private void OnGUI()
