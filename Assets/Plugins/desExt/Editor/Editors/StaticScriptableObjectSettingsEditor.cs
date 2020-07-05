@@ -5,6 +5,7 @@ using desExt.Runtime;
 using desExt.Runtime.Presets;
 using desExt.Runtime.StaticScriptableObjects;
 using UnityEditor;
+using UnityEngine;
 
 namespace desExt.Editor.Editors
 {
@@ -19,10 +20,7 @@ namespace desExt.Editor.Editors
         {
             get
             {
-                if (_groupedStaticScriptableObjects == null)
-                {
-                    Update();
-                }
+                Update();
 
                 return _groupedStaticScriptableObjects;
             }
@@ -73,22 +71,29 @@ namespace desExt.Editor.Editors
                 {
                     EditorGUI.indentLevel++;
 
-                    foreach (var configElement in GroupedStaticScriptableObjects[preset])
+                    if (GroupedStaticScriptableObjects[preset].Count > 0)
                     {
-                        var staticScriptableObjectType =
-                            Type.GetType(configElement
-                                .FindPropertyRelative(StaticScriptableObjectConfig.SerializedTypeName)
-                                .stringValue);
+                        foreach (var configElement in GroupedStaticScriptableObjects[preset])
+                        {
+                            var staticScriptableObjectType =
+                                Type.GetType(configElement
+                                    .FindPropertyRelative(StaticScriptableObjectConfig.SerializedTypeName)
+                                    .stringValue);
 
-                        var staticScriptableObject =
-                            configElement.FindPropertyRelative(StaticScriptableObjectConfig
-                                .SerializedScriptableObjectName);
+                            var staticScriptableObject =
+                                configElement.FindPropertyRelative(StaticScriptableObjectConfig
+                                    .SerializedScriptableObjectName);
 
-                        EditorGUILayout.ObjectField(staticScriptableObject, staticScriptableObjectType,
-                            staticScriptableObjectType.ToString().ToGuiContent());
+                            EditorGUILayout.ObjectField(staticScriptableObject, staticScriptableObjectType,
+                                staticScriptableObjectType.ToString().ToGuiContent());
 
-                        if (staticScriptableObject.objectReferenceValue != null)
-                            serializedObject.ApplyModifiedProperties();
+                            if (staticScriptableObject.objectReferenceValue != null)
+                                serializedObject.ApplyModifiedProperties();
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("No implemented Static Scriptable Objects found!", MessageType.Info);
                     }
 
                     EditorGUI.indentLevel--;
