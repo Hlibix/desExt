@@ -63,15 +63,22 @@ namespace desExt.Runtime.StaticScriptableObjects
                     .Find(i => i.SerializedType == scriptableImplementationType &&
                                i.Preset == PresetManager.ActivePreset);
 
-                var concreteImplementation =
-                    staticScriptableObjectConfig.ScriptableObject;
-                _currentSetup.Add(scriptableImplementationType, concreteImplementation);
+                var concreteImplementation = staticScriptableObjectConfig.ScriptableObject;
+
+                if (concreteImplementation != null)
+                {
+                    _currentSetup.Add(scriptableImplementationType, concreteImplementation);
+                }
+                else
+                {
+                    Logging.LogError(
+                        $"Implementation for {scriptableImplementationType.Name.Color(Color.blue)} is not set in Static Scriptable Objects Manager!");
+                }
             }
         }
 
         public static T GetStaticScriptableObjectInstance<T>() where T : BaseStaticScriptableObject
         {
-            RefreshCurrentSetup();
             return (T) CurrentSetup[typeof(T)];
         }
 
@@ -150,8 +157,6 @@ namespace desExt.Runtime.StaticScriptableObjects
                     }
                 }
             }
-
-            RefreshCurrentSetup();
         }
     }
 }
