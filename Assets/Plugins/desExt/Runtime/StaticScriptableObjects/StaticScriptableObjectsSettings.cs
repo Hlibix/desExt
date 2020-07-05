@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using desExt.Runtime.Presets;
 using desExt.Runtime.Utils;
-using UnityEditor;
 using UnityEngine;
-using Assembly = System.Reflection.Assembly;
 
 namespace desExt.Runtime.StaticScriptableObjects
 {
     public class StaticScriptableObjectsSettings : LoadedScriptableObjectSingleton<StaticScriptableObjectsSettings>
     {
 #if UNITY_EDITOR
-        [MenuItem("desExt/Static Scriptable Objects Manager")]
+        [UnityEditor.MenuItem("desExt/Static Scriptable Objects Manager")]
         public static void MenuItem()
         {
             EditorUtils.SetInspectorObject(Instance);
@@ -26,11 +24,21 @@ namespace desExt.Runtime.StaticScriptableObjects
 
         private static Dictionary<Type, BaseStaticScriptableObject> _currentSetup;
 
-        private static IEnumerable<Type> StaticScriptableImplementationsTypes =>
-            Assembly.GetAssembly(typeof(StaticScriptableObject<>))
-                .GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(BaseStaticScriptableObject)) &&
-                            t != typeof(StaticScriptableObject<>));
+        private static List<Type> StaticScriptableImplementationsTypes
+        {
+            get
+            {
+                var types = new List<Type>();
+
+                foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    types.AddRange(assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(BaseStaticScriptableObject)) &&
+                                                                  t != typeof(StaticScriptableObject<>)));
+                }
+
+                return types;
+            }
+        }
 
         private static Dictionary<Type, BaseStaticScriptableObject> CurrentSetup
         {
@@ -72,6 +80,13 @@ namespace desExt.Runtime.StaticScriptableObjects
             return new List<StaticScriptableObjectConfig>(configs);
         }
 
+#if UNITY_EDITOR
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
+        {
+            Instance.OnValidate();
+        }
+#endif
         private void OnValidate()
         {
             // Add placeholders for non-implemented scriptable objects
