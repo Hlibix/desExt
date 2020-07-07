@@ -2,6 +2,10 @@
 
 **desExt** is a Unity framework providing flexible control over game variables and other extended design capabilities using **ScriptableObjects**
 
+## Confirmed supported Unity versions
+
+- 2019.3.12f1
+
 # Features
 
 ## Variables
