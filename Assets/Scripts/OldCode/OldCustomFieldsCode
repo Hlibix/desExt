@@ -1,0 +1,153 @@
+        private void DisplayCustomField(BaseVariable variable)
+        {
+            var fields = variable.GetType().GetFields()
+                .Where(field => field.FieldType != typeof(VariableCategory) && field.Name != "VariableCategory");
+
+            foreach (var field in fields)
+            {
+                // Skip non-serialized field
+                if ((field.Attributes & FieldAttributes.NotSerialized) != 0)
+                    continue;
+
+                if (field.FieldType.IsSubclassOf(typeof(BaseVariable)) ||
+                    field.FieldType == typeof(BaseVariable))
+                {
+                    EditorGUI.indentLevel++;
+                    var fieldValue = field.GetValue(variable);
+                    field.SetValue(variable,
+                        DisplayVariableField(field.Name, (BaseVariable) fieldValue, field.FieldType));
+                    EditorGUI.indentLevel--;
+                }
+                // Process 
+                else if (field.FieldType.IsClass &&
+                         (field.FieldType.Attributes & TypeAttributes.Serializable) != 0 &&
+                         field.FieldType.Namespace != "System")
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.LabelField(field.FieldType.Name);
+                    field.FieldType.GetFields().ToList().ForEach(fieldInfo =>
+                    {
+                        EditorGUI.indentLevel++;
+                        ProcessValue(field.GetValue(variable), fieldInfo);
+                        EditorGUI.indentLevel--;
+                    });
+                    EditorGUI.indentLevel--;
+                }
+                else
+                {
+                    EditorGUI.indentLevel++;
+                    ProcessValue(variable, field);
+                    EditorGUI.indentLevel--;
+                }
+            }
+        }
+
+        private void ProcessValue(object sourceObject, FieldInfo field)
+        {
+            var value = field.GetValue(sourceObject);
+            switch (value)
+            {
+                case int i:
+                    field.SetValue(sourceObject, DisplayIntField(field.Name, i));
+                    break;
+                case float f:
+                    field.SetValue(sourceObject, DisplayFloatField(field.Name, f));
+                    break;
+                case string s:
+                    field.SetValue(sourceObject, DisplayStringField(field.Name, s));
+                    break;
+                case Object o:
+                    field.SetValue(sourceObject, DisplayObjectField(field.Name, o, field.FieldType));
+                    break;
+                case Enum e:
+                    field.SetValue(sourceObject, DisplayEnumField(field.Name, e));
+                    break;
+                default:
+                    if (value == null)
+                    {
+                        Debug.LogError($"Value of field [{field.Name}]:[{field.FieldType}] is null!");
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Can't show element of type: " + value.GetType());
+                    }
+
+                    break;
+            }
+        }
+
+        private Enum DisplayEnumField(string name, Enum inputEnum)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var objectField = EditorGUILayout.EnumPopup(inputEnum);
+            EditorGUILayout.EndHorizontal();
+            return objectField;
+        }
+
+        private Object DisplayObjectField(string name, Object value, Type fieldType)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var objectField = EditorGUILayout.ObjectField(value, fieldType, false);
+            EditorGUILayout.EndHorizontal();
+            return objectField;
+        }
+
+        private BaseVariable DisplayVariableField(string name, BaseVariable value, Type fieldType)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var variableField =
+                (BaseVariable) EditorGUILayout.ObjectField(value, fieldType, false);
+            EditorGUILayout.EndHorizontal();
+            return variableField;
+        }
+
+        private int DisplayIntField(string name, int value)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var intField = EditorGUILayout.IntField(value);
+            EditorGUILayout.EndHorizontal();
+            return intField;
+        }
+
+        private float DisplayFloatField(string name, float value)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var floatField = EditorGUILayout.FloatField(value);
+            EditorGUILayout.EndHorizontal();
+            return floatField;
+        }
+
+        private string DisplayStringField(string name, string value)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DisplayPrefix(name);
+            var textField = EditorGUILayout.TextField(value);
+            EditorGUILayout.EndHorizontal();
+            return textField;
+        }
+
+        private void DisplayPrefix(string prefix)
+        {
+            EditorGUILayout.PrefixLabel(prefix);
+        }
+
+        private T DisplayField<T>(string name, T value)
+        {
+            switch (value)
+            {
+                case int i:
+                    return (T) (object) EditorGUILayout.IntField(i);
+                case string str:
+                    return (T) (object) EditorGUILayout.TextField(str);
+                case float flt:
+                    return (T) (object) EditorGUILayout.FloatField(flt);
+
+                default:
+                    throw new ArgumentException($"Value field not implemented for type :{value.GetType()}");
+            }
+        }

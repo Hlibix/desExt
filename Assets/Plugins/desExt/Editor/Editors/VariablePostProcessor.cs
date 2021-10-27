@@ -1,9 +1,9 @@
 using System;
+using desExt.Editor.Model;
 using desExt.Runtime.Variables;
 using UnityEditor;
-using UnityEngine;
 
-namespace desExt.Editor
+namespace desExt.Editor.Editors
 {
     public partial class VariablesManagerEditor
     {

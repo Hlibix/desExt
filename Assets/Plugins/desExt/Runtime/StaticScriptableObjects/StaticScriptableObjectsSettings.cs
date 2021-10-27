@@ -30,8 +30,9 @@ namespace desExt.Runtime.StaticScriptableObjects
             {
                 var types = new List<Type>();
 
-                foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
+                    // Debug.Log(assembly.FullName);
                     types.AddRange(assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(BaseStaticScriptableObject)) &&
                                                                   t != typeof(StaticScriptableObject<>)));
                 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,10 +9,11 @@ namespace desExt.Editor.Utils
 {
     public static class EnumUtils
     {
-        public static void GenerateEnum(string enumName, List<string> enumValues, string relativeScriptFileLocation,
+        public static void GenerateEnum(string enumName, IEnumerable<string> enumValues,
+            string relativeScriptFileLocation,
             string namespaceName = "")
         {
-            if (enumValues.Count == 0)
+            if (!enumValues.Any())
                 throw new Exception("No Enum Values passed, aborting");
 
             string filePathAndName = "Assets/" + relativeScriptFileLocation + "/" + enumName + ".cs";
@@ -22,14 +24,15 @@ namespace desExt.Editor.Utils
                 {
                     if (namespaceName != "")
                     {
-                        streamWriter.WriteLine("namespace " + namespaceName + " {");
+                        streamWriter.WriteLine("namespace " + namespaceName + "\n{");
                     }
 
                     streamWriter.WriteLine("public enum " + enumName);
                     streamWriter.WriteLine("{");
-                    for (int i = 0; i < enumValues.Count; i++)
+
+                    for (int i = 0; i < enumValues.Count(); i++)
                     {
-                        streamWriter.WriteLine("\t" + enumValues[i] + ",");
+                        streamWriter.WriteLine("\t" + enumValues.ElementAt(i) + ",");
                     }
 
                     streamWriter.WriteLine("}");
